@@ -43,6 +43,8 @@ class FinalTest:
         for i in range(3):
             self.bonus[i] = chara.params.get_params()[i] / 100 * 1.5
 
+        self.hp = chara.hp.get_hp()
+
     def _card_drow(self) -> None:
         print(f"\n< 残りターン: {self.turn} >")
         self.draw = random.sample(self.pile, 3)   # TODO 1枚ずつピック

@@ -1,4 +1,5 @@
 from typing import List
+from .chara.HP import HP
 from .chara.Params import Params
 # from chara.Drinks import Drinks
 from .chara.Cards import Cards
@@ -10,7 +11,7 @@ class Chara:
         self.rarity: str = rarity
 
         # classes
-        # self.hp = HP()
+        self.hp = HP()
         self.params = Params(0, 0, 0)
         # self.drinks = Drinks()
         self.cards = Cards()
