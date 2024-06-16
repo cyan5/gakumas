@@ -1,5 +1,11 @@
+from .Story import Story
+
 def main():
-    print("Hello, World!")
+
+    story: Story = Story("Pro")
+    story.execution()
+
+    del story
 
 if __name__ == "__main__":
     main()
