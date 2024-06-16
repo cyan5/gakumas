@@ -6,92 +6,80 @@ from ..data.card.Card import Card
 
 class FinalTest:
 
-    def __init__(self, chara: Chara):
-        self.__chara__: Chara = chara
-        self.__bonus__: List[float] = [0.0 for _ in range(3)]
+    def __init__(self):
+        self.bonus: List[float] = [0.0 for _ in range(3)]
 
-        self.__turn__: int = 1
+        self.turn: int = 1
 
-        self.__draw__   : List[Card] = []   # 手札
-        self.__pile__   : List[Card] = []   # 山札
-        self.__discard__: List[Card] = []   # 捨て札
-        self.__exclude__: List[Card] = []   # 除外
+        self.draw   : List[Card] = []   # 手札
+        self.pile   : List[Card] = []   # 山札
+        self.discard: List[Card] = []   # 捨て札
+        self.exclude: List[Card] = []   # 除外
 
-        self.__score__   : int = 0
-        self.__hp__      : int = 0
-        self.__genki__   : int = 0
-        self.__syutyu__  : int = 0
-        self.__kocho__   : int = 0
-        self.__zekkocho__: int = 0
-
-    # @classmethod
-    # def initialize(cls, chara: Chara):
-    #     params: List[float] = list[float](chara.params.get_params())
-    #     for param in params:
-    #         param /= 100
-    #         param *= 1.5
-    #     bonus: List[float] = params
-    #     return FinalTest(chara, bonus)
+        self.score   : int = 0
+        self.hp      : int = 0
+        self.genki   : int = 0
+        self.syutyu  : int = 0
+        self.kocho   : int = 0
+        self.zekkocho: int = 0
 
     def execution(self, chara: Chara):
 
-        choose: int
-        self.__start__(chara)
-        
-        while self.__turn__ > 0:
+        self._start(chara)
+        while self.turn > 0:
 
-            self.__card_drow__()
-            choose = self.__card_choose__()
-            self.__calc_score__(choose, self.__chara__)
-            self.__proc__()
+            self._card_drow()
+            self._calc_score(self._card_choose(), chara)
+            self._proc()
 
-            self.__turn__ -=1
+            self.turn -=1
+
+        print(f"\nfinal test score: {self.score}")
 
     # private methods
-    def __start__(self, chara: Chara) -> None:
-        self.__pile__ = self.__chara__.cards.get_cards()
+    def _start(self, chara: Chara) -> None:
+        self.pile = chara.cards.get_cards()
 
         for i in range(3):
-            self.__bonus__[i] = chara.params.get_params()[i] / 100 * 1.5
+            self.bonus[i] = chara.params.get_params()[i] / 100 * 1.5
 
-    def __card_drow__(self) -> None:
-        print(f"\n< 残りターン: {self.__turn__} >")
-        self.__draw__ = random.sample(self.__pile__, 3)   # TODO 1枚ずつピック
-        for card in self.__draw__:
-            self.__pile__.remove(card)
-        for i in range(len(self.__draw__)):
-            print(f"{i} : {self.__draw__[i].get_name()}")
+    def _card_drow(self) -> None:
+        print(f"\n< 残りターン: {self.turn} >")
+        self.draw = random.sample(self.pile, 3)   # TODO 1枚ずつピック
+        for card in self.draw:
+            self.pile.remove(card)
+        for i in range(len(self.draw)):
+            print(f"{i} : {self.draw[i].get_name()}")
 
-    def __card_choose__(self) -> int:
+    def _card_choose(self) -> int:
         num: int
         num = int(input("choose 0-2? > "))
         # num = random.choice(range(3))
         return num
     
-    def __calc_score__(self, num: int, chara: Chara) -> None:
+    def _calc_score(self, num: int, chara: Chara) -> None:
+        status: List[Any] = self.draw[num].get_status()
 
-        status: List[Any] = self.__draw__[num].get_status()
+        self.hp       += status[1]
+        self.genki    += status[2]
+        self.syutyu   += status[3]
+        self.kocho    += status[4]
+        self.zekkocho += status[5]
+        self.score    += ceil(status[0] * self.bonus[0])  #TODO vodaviターンを判別
 
-        self.__hp__       += status[1]
-        self.__genki__    += status[2]
-        self.__syutyu__   += status[3]
-        self.__kocho__    += status[4]
-        self.__zekkocho__ += status[5]
-        self.__score__    += ceil(status[0] * self.__bonus__[0])  #TODO vodaviターンを判別
-
-    def __proc__(self) -> None:
+    def _proc(self) -> None:
         # 1回のみの札は除外へ、それ以外は捨て札へ
-        for card in self.__draw__:
+        for card in self.draw:
             if card.get_status()[-1]:
-                self.__exclude__.append(card)
+                self.exclude.append(card)
             else:
-                self.__discard__.append(card)
+                self.discard.append(card)
 
-        self.__draw__ = []
+        self.draw = []
 
-    # public methods
+    # getter methods
     def get_score(self) -> int:
-        return self.__score__
+        return self.score
 
     def __del__(self):
         pass

@@ -5,7 +5,6 @@ class Params:
     def __init__(self, vo: int, da: int, vi: int) -> None:
         self.params: List[int] = [vo, da, vi]
 
-    # public methos
     def add_params(self, vo: int, da: int, vi: int):
         self.params += [vo, da, vi]
 

@@ -4,19 +4,20 @@ from .chara.Params import Params
 from .chara.Cards import Cards
 
 class Chara:
+
     def __init__(self, name: str, rarity: str):
-        self.__name__: str = name
-        self.__rarity__: str = rarity
+        self.name: str = name
+        self.rarity: str = rarity
 
         # classes
+        # self.hp = HP()
         self.params = Params(0, 0, 0)
-        # self.__drinks__ = Drinks()
+        # self.drinks = Drinks()
         self.cards = Cards()
-        # self.__hp__ = HP()
 
     # getter methods
     def get_name(self) -> str:
-        return self.__name__
+        return self.name
 
     def __del__(self):
         del self.params
