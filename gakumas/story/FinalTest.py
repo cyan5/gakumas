@@ -1,55 +1,59 @@
-from typing import List, Any
-import random
-from math import ceil
 from ..Chara import Chara
 from ..data.card.Card import Card
+from .Status import TestStatus
+
+from typing import List
+import random
 
 class FinalTest:
 
     def __init__(self):
-        self.bonus: List[float] = [0.0 for _ in range(3)]
 
-        self.turn: int = 1
+        self.status: TestStatus
+        self.turn_type_list: List[int]
+
+        self.turn: int = 12
 
         self.draw   : List[Card] = []   # 手札
         self.pile   : List[Card] = []   # 山札
         self.discard: List[Card] = []   # 捨て札
         self.exclude: List[Card] = []   # 除外
 
-        self.score   : int = 0
-        self.hp      : int = 0
-        self.genki   : int = 0
-        self.syutyu  : int = 0
-        self.kocho   : int = 0
-        self.zekkocho: int = 0
+    def start(self, params: List[int], hp: int, cards: List[Card]):
+        self.status = TestStatus(params, hp)
+        self.turn_type_list = [0, 2, 1, 1, 2, 2, 1, 1, 0, 2, 0, 1]  # vo: 0,  da: 1, vi: 2
 
-    def execution(self, chara: Chara):
+        for card in cards:
+            self.pile.append(card)
 
-        self._start(chara)
+    def execution(self):
         while self.turn > 0:
-
+            
             self._card_drow()
-            self._calc_score(self._card_choose(), chara)
-            self._proc()
+            chosen_card: int = self._card_choose()
+            self._calc_score(chosen_card, self.turn_type_list[self.turn])
+            self._chosen_card_proc(chosen_card)
+            self._card_proc()
 
             self.turn -=1
 
-        print(f"\nfinal test score: {self.score}")
+        print(f"\nfinal test score: {self.status.get_score()}")
 
     # private methods
-    def _start(self, chara: Chara) -> None:
-        self.pile = chara.cards.get_cards()
-
-        for i in range(3):
-            self.bonus[i] = chara.params.get_params()[i] / 100 * 1.5
-
-        self.hp = chara.hp.get_hp()
-
     def _card_drow(self) -> None:
         print(f"\n< 残りターン: {self.turn} >")
-        self.draw = random.sample(self.pile, 3)   # TODO 1枚ずつピック
-        for card in self.draw:
-            self.pile.remove(card)
+        # self.draw = random.sample(self.pile, 3)   # TODO 1枚ずつピック
+        for _ in range(3):
+            
+            if len(self.pile) == 0:
+                for card in self.discard:
+                    self.pile.append(card)
+                self.discard = []
+            
+            choice: Card = random.choice(self.pile)
+            self.draw.append(choice)
+            self.pile.remove(choice)
+
         for i in range(len(self.draw)):
             print(f"{i} : {self.draw[i].get_name()}")
 
@@ -59,29 +63,24 @@ class FinalTest:
         # num = random.choice(range(3))
         return num
     
-    def _calc_score(self, num: int, chara: Chara) -> None:
-        status: List[Any] = self.draw[num].get_status()
+    def _calc_score(self, choose_num: int, turn_type: int) -> None:
+        self.draw[choose_num].operation(self.status, turn_type)
 
-        self.hp       += status[1]
-        self.genki    += status[2]
-        self.syutyu   += status[3]
-        self.kocho    += status[4]
-        self.zekkocho += status[5]
-        self.score    += ceil(status[0] * self.bonus[0])  #TODO vodaviターンを判別
+    def _chosen_card_proc(self, chosen_card: int) -> None:
+        card: Card = self.draw[chosen_card]
+        if card.is_onlyone():
+            self.exclude.append(card)
+        else:
+            self.discard.append(card)
+        self.draw.remove(card)
 
-    def _proc(self) -> None:
-        # 1回のみの札は除外へ、それ以外は捨て札へ
+    def _card_proc(self) -> None:
+        self.status.proc(self.turn_type_list[self.turn])
+
         for card in self.draw:
-            if card.get_status()[-1]:
-                self.exclude.append(card)
-            else:
-                self.discard.append(card)
-
+            self.discard.append(card)
         self.draw = []
 
-    # getter methods
-    def get_score(self) -> int:
-        return self.score
-
     def __del__(self):
-        pass
+        del self.status
+

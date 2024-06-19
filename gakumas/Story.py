@@ -15,15 +15,22 @@ class Story:
 
         self.chara.params.set_params(100, 100, 100)
 
-        card1: Card = Card("アピール")
-        card2: Card = Card("集中")
-        card3: Card = Card("基本")
-        self.chara.cards.add_card(card1)
-        self.chara.cards.add_card(card2)
-        self.chara.cards.add_card(card3)
+        self.chara.cards.add_card(Card("アピール"))
+        self.chara.cards.add_card(Card("アピール"))
+        self.chara.cards.add_card(Card("アピール"))
+        self.chara.cards.add_card(Card("アピール"))
+        self.chara.cards.add_card(Card("集中"))
+        self.chara.cards.add_card(Card("集中"))
+        self.chara.cards.add_card(Card("集中"))
+        self.chara.cards.add_card(Card("集中"))
+        self.chara.cards.add_card(Card("基本"))
+        self.chara.cards.add_card(Card("基本"))
+        self.chara.cards.add_card(Card("基本"))
+        self.chara.cards.add_card(Card("基本"))
 
         # story
-        self.finaltest.execution(self.chara)
+        self.finaltest.start(self.chara.params.get_params(), self.chara.hp.get_hp(), self.chara.cards.get_cards())
+        self.finaltest.execution()
 
     def __del__(self):
         del self.chara
